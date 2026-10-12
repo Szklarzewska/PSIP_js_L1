@@ -6,3 +6,4 @@
 - Dominik - koniński
 - Tymoteusz - toruński
 - Jan - miński
+- Kacper - legnicki
