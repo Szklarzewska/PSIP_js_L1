@@ -2,3 +2,4 @@
 - Julia - hajnowski
 - Jakub - chełmski
 - Daniel - sochaczewski
+- Bartek - radomszczański
