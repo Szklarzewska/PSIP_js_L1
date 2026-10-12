@@ -7,3 +7,4 @@
 - Tymoteusz - toruński
 - Jan - miński
 - Kacper - legnicki
+- Stanisław - turecki
