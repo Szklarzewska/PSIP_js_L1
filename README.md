@@ -8,3 +8,4 @@
 - Jan - miński
 - Kacper - legnicki
 - Stanisław - turecki
+- Dawid - bocheński
