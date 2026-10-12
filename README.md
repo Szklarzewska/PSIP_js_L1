@@ -3,3 +3,4 @@
 - Jakub - chełmski
 - Daniel - sochaczewski
 - Bartek - radomszczański
+- Dominik - koniński
