@@ -9,3 +9,4 @@
 - Kacper - legnicki
 - Stanisław - turecki
 - Dawid - bocheński
+- Marcin - miński
