@@ -5,3 +5,4 @@
 - Bartek - radomszczański
 - Dominik - koniński
 - Tymoteusz - toruński
+- Jan - miński
