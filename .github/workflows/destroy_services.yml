@@ -1,0 +1,45 @@
+
+name: Destroy Remote Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Srodowisko do usuniecia"
+        required: true
+        type: choice
+        options:
+          - env-test
+          - env-qa
+          - main
+
+      confirm:
+        description: "Wpisz DESTROY, aby potwierdzic usuniecie"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  destroy-db:
+    if: ${{ inputs.confirm == 'DESTROY' }}
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Destroy PostGIS
+        env:
+          TARGET_ENV: ${{ inputs.environment }}
+        run: |
+          docker compose \
+            -f docker-compose-remote.yml \
+            -p "remote-db-${TARGET_ENV}" \
+            down --volumes --remove-orphans
+
+      - name: Show remaining resources
+        run: |
+          docker ps -a
+          docker volume ls
