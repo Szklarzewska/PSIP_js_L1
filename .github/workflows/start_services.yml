@@ -36,15 +36,14 @@ jobs:
           pwd
           ls -la
           echo "===== docker-compose-remote.yml ====="
-          cat -n docker-compose-remote.yml
-
-      - name: Validate compose
-        run: |
-          docker compose -f docker-compose-remote.yml config
+          cat docker-compose-remote.yml
 
       - name: Start PostGIS
         run: |
-          docker compose -f docker-compose-remote.yml -p remote-db-${{ github.ref_name }} up -d --build
+          docker compose \
+            -f docker-compose-remote.yml \
+            -p remote-db-${{ github.ref_name }} \
+            up -d --build
 
       - name: Show running containers
         run: |
