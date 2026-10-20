@@ -1,55 +1,23 @@
-name: Start Remote Database
 
-on:
-  push:
-    branches:
-      - env-test
-      - env-qa
-      - main
+services:
+  postgis:
+    build:
+      context: .
+      dockerfile: docker/postgis/Dockerfile
 
-jobs:
-  start-db:
-    runs-on: self-hosted
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    ports:
+      - "${POSTGRES_PORT}:5432"
 
-      - name: Create .env file
-        run: |
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./data:/data:ro
 
-          if [ "${{ github.ref_name }}" = "env-test" ]; then
-            echo "POSTGRES_PORT=5444" >> .env
-          elif [ "${{ github.ref_name }}" = "env-qa" ]; then
-            echo "POSTGRES_PORT=5445" >> .env
-          elif [ "${{ github.ref_name }}" = "main" ]; then
-            echo "POSTGRES_PORT=5446" >> .env
-          fi
+    restart: unless-stopped
 
-          echo "COMPOSE_PROJECT_NAME=${{ github.ref_name }}" >> .env
-
-      - name: Debug compose file
-        run: |
-          pwd
-          ls -la
-          echo "===== docker-compose-remote.yml ====="
-          cat -n docker-compose-remote.yml
-
-      - name: Validate compose
-        run: |
-          docker compose -f docker-compose-remote.yml config
-
-      - name: Start PostGIS
-        run: |
-          docker compose \
-            -f docker-compose-remote.yml \
-            -p remote-db-${{ github.ref_name }} \
-            up -d --build
-
-      - name: Show running containers
-        run: |
-          docker ps
-          docker volume ls | grep remote-db || true
+volumes:
+  pgdata:
