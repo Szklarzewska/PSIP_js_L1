@@ -1,3 +1,4 @@
+
 name: Start Remote Database
 
 on:
@@ -7,6 +8,9 @@ on:
       - env-qa
       - main
 
+permissions:
+  contents: read
+
 jobs:
   start-db:
     runs-on: self-hosted
@@ -15,28 +19,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create .env file
+      - name: Set environment variables
+        shell: bash
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          case "$BRANCH_NAME" in
+            env-test) POSTGRES_PORT=5444 ;;
+            env-qa) POSTGRES_PORT=5445 ;;
+            main) POSTGRES_PORT=5446 ;;
+            *) exit 1 ;;
+          esac
 
-          if [ "${{ github.ref_name }}" = "env-test" ]; then
-            echo "POSTGRES_PORT=5444" >> .env
-          elif [ "${{ github.ref_name }}" = "env-qa" ]; then
-            echo "POSTGRES_PORT=5445" >> .env
-          elif [ "${{ github.ref_name }}" = "main" ]; then
-            echo "POSTGRES_PORT=5446" >> .env
-          fi
+          echo "POSTGRES_PORT=$POSTGRES_PORT" >> "$GITHUB_ENV"
 
-          echo "COMPOSE_PROJECT_NAME=${{ github.ref_name }}" >> .env
+          {
+            echo "POSTGRES_USER=$POSTGRES_USER"
+            echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
+            echo "POSTGRES_DB=$POSTGRES_DB"
+          } >> "$GITHUB_ENV"
 
-      - name: Debug compose file
-        run: |
-          pwd
-          ls -la
-          echo "===== docker-compose-remote.yml ====="
-          cat docker-compose-remote.yml
+      - name: Validate Docker Compose
+        run: docker compose -f docker-compose-remote.yml config --quiet
 
       - name: Start PostGIS
         run: |
@@ -48,4 +55,4 @@ jobs:
       - name: Show running containers
         run: |
           docker ps
-          docker volume ls | grep remote-db || true
+          docker volume 
