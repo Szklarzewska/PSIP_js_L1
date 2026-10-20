@@ -17,7 +17,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
           echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
 
@@ -44,9 +44,7 @@ jobs:
 
       - name: Start PostGIS
         run: |
-          docker compose -f docker-compose-remote.yml \
-            -p remote-db-${{ github.ref_name }} \
-            up -d --build
+          docker compose -f docker-compose-remote.yml -p remote-db-${{ github.ref_name }} up -d --build
 
       - name: Show running containers
         run: |
