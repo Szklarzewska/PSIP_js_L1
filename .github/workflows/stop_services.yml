@@ -1,0 +1,37 @@
+
+name: Stop Remote Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Srodowisko do zatrzymania"
+        required: true
+        type: choice
+        options:
+          - env-test
+          - env-qa
+          - main
+
+permissions:
+  contents: read
+
+jobs:
+  stop-db:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stop PostGIS
+        env:
+          TARGET_ENV: ${{ inputs.environment }}
+        run: |
+          docker compose \
+            -f docker-compose-remote.yml \
+            -p "remote-db-${TARGET_ENV}" \
+            stop
+
+      - name: Show container status
+        run: docker ps -a
